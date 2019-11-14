@@ -1,0 +1,41 @@
+table, td, th {
+    border: solid thin gray;
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 10px;
+}
+
+th {
+    background-color: midnightblue;
+    color: white;
+    font-weight: bold;
+}
+
+#AddUpdatePanel {
+    background-color: lightblue;
+    padding: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+input {
+    width: 10%;
+    margin-right: 10%;
+}
+
+.formLabel {
+    width: 100px;
+    float: left;
+}
+
+tr:hover {
+    background-color: lightgreen;
+}
+
+.highlighted {
+    background-color: yellow;
+}
