@@ -3,7 +3,7 @@ window.onload = function () {
     populateRounds();
 };
 function getAllGames() {
-    var url = "gameService/games";
+    let url = "gameService/games";
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
