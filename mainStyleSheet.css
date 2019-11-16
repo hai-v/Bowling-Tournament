@@ -1,0 +1,109 @@
+body {
+    background-image: url("background.jpg");
+}
+
+table, td, th {
+    border-collapse: collapse;
+    padding: 50px;
+}
+
+.scoreTableHeader {
+  background-color: red;
+  box-shadow: 5px 5px 30px 5px red;
+  width: 100%;
+  display: block;
+}
+
+#scoreTable tbody:nth-of-type(even) .scoreEvent { 
+  background-color: rgb(39,75,231);
+  box-shadow: 5px 5px 30px 5px rgb(0,18,244);
+  width: 100%;
+}
+
+#scoreTable tbody:nth-of-type(odd) .scoreEvent { 
+    background-color: rgb(255,25,255);
+  box-shadow: 5px 5px 30px 5px rgb(225,0,225);
+  width: 100%;
+}
+
+.scoreEvent {
+    display: block;
+    border: 5px solid white;
+    box-shadow: 5px 5px 30px 5px rgb(255,247,255);
+}
+
+
+
+td, th {
+    padding: 10px;
+}
+
+th {
+    color: rgb(255,254,91);
+    text-shadow: 0 0 20px #ffff11, 0 0 30px #ffff11, 0 0 40px #ff4da6, 0 0 50px #ffff11,
+        0 0 60px #ff4da6, 0 0 70px #ffff11, 0 0 80px #ffff11;
+}
+
+#AddUpdatePanel {
+    background-color: lightblue;
+    padding: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.formLabel {
+    width: 100px;
+    float: left;
+}
+
+.highlighted {
+    background-color: yellow;
+}
+
+input {
+  margin-left: 2%;
+  width: 91%;
+  text-align: center;
+  float: left;
+  border: none;
+}
+
+.frames {
+  width: 100%;
+  border-bottom: 3px solid black;
+  border-left: 2px solid black;
+  border-top: 3px solid black;
+  border-right: 3px solid black;
+  float: left;
+  height: 60%;
+}
+
+.score1 {
+    border: 1px solid black;
+    border-bottom: none;
+    border-collapse: collapse;
+    width: 48%;
+    float: left;
+}
+
+.score2 {
+    border: 1px solid black;
+    border-collapse: collapse;
+    width: 48%;
+    float: left;
+}
+
+.totalScore {
+    border: 1px solid black;
+    border-collapse: collapse;
+    width: 100%;
+    float: left;
+    border-top: none;
+}
+
+.error {
+  margin-top: 0%;
+  text-align: center;
+}
