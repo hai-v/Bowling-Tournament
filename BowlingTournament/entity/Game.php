@@ -1,19 +1,22 @@
 <?php
+
     class Game implements JsonSerializable {
         private $gameID;
         private $matchID;
         private $gameNumber;
         private $gameStatusID;
-        private $balls;
+        private $balls = [null];
         private $score;
+        private $team;
         
-        public function __construct($gameID, $matchID, $gameNumber, $gameStatusID, $balls, $score) {
+        public function __construct($gameID, $matchID, $gameNumber, $gameStatusID, $balls, $score, Team $team) {
             $this->gameID = $gameID;
             $this->matchID = $matchID;
             $this->gameNumber = $gameNumber;
             $this->gameStatusID = $gameStatusID;
-            $this->balls = $balls;
+            $this->balls =$balls;
             $this->score = $score;
+            $this->team = $team;
         }
         
         public function getGameID() {

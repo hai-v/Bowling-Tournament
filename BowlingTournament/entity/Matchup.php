@@ -1,4 +1,5 @@
 <?php
+
     class Matchup implements JsonSerializable {
         private $matchID;
         private $roundID;
@@ -7,7 +8,7 @@
         private $score;
         private $ranking;
         
-        public function __construct($natchID, $roundID, $matchGroup, $teamID, $score, $ranking) {
+        public function __construct($matchID, $roundID, $matchGroup, $teamID, $score, $ranking) {
             $this->matchID = $matchID;
             $this->roundID = $roundID;
             $this->matchGroup = $matchGroup;

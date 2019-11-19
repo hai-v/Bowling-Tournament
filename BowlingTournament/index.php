@@ -7,13 +7,13 @@ and open the template in the editor.
 <html>
     <head>
         <meta charset="UTF-8">
-         <script src="main.js"></script>
+        <script src="matchup.js"></script>
          <link rel="stylesheet" href="mainStyleSheet.css">
         <title></title>
     </head>
-    <body>
+    <body img src="/images/background.jpg">
         <button id="GetButton">Get Data</button>
         <select id="rounds"></select>
-        <table></table>
+        <table id="scoreTable"></table>
     </body>
 </html>
