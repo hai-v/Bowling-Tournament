@@ -7,11 +7,9 @@ require_once ($projectRoot . '/entity/Game.php');
 class GameAccessor {
 
     private $getGameByStatusIDString = "select * from GAME where gameStatusID = 'INPROGRESS' or gameStatusID='AVAILABLE'";
-    private $updateStatementByScoreString = "update GAME set score=:score where gameID=:gameID";
-    private $updateStatementGameByStatusString = "update GAME set gameStatusID =(select gamestatusID from gameStatus where gameStatusID=:gameStatusID) where GAMEID=:gameID";
     private $getByGameStatusID = null;
-    private $updateStatementByScore = null;
-    private $updateStatementByGameStatus = null;
+    private $updateStatementGameByGameIDString = "update GAME set score=:score, balls=:balls, gameStatusID=:gameStatusID where gameID=:gameID";
+    private $updateStatementByGameID = null;
 
     public function __construct() {
         $cm = new ConnectionManager();
@@ -21,15 +19,11 @@ class GameAccessor {
         }
         $this->getByGameStatusID = $this->conn->prepare($this->getGameByStatusIDString);
         if (is_null($this->getByGameStatusID)) {
-            throw new Exception("bad statment " .$this->getAllStatementString ."");
+            throw new Exception("bad statment " . $this->getAllStatementString . "");
         }
-        $this->updateStatementByGameStatus = $this->conn->prepare($this->updateStatementGameByStatusString);
-        if (is_null($this->updateStatementByGameStatus)) {
-            throw new Exception("bad statement: " .$this->updateStatementGameByStatusString ."");
-        }
-        $this->updateStatementByScore = $this->conn->prepare($this->updateStatementByScoreString);
-        if (is_null($this->updateStatementByScore)) {
-            throw new Exception("bad statement: " .$this->updateStatementByScoreString ."");
+        $this->updateStatementByGameID = $this->conn->prepare($this->updateStatementGameByGameIDString);
+        if (is_null($this->updateStatementByGameID)) {
+            throw new Exception("bad statement: " . $this->updateStatementGameByGameIDString . "");
         }
     }
 
@@ -39,7 +33,7 @@ class GameAccessor {
             $stmt = $this->conn->prepare($selectString);
             $stmt->execute();
             $dbresults = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             foreach ($dbresults as $r) {
                 $gameID = $r['gameID'];
                 $matchID = $r['matchID'];
@@ -50,7 +44,6 @@ class GameAccessor {
                 $gameObj = new Game($gameID, $matchID, $gameNumber, $gameStatusID, $balls, $score);
                 array_push($result, $gameObj);
             }
-            
         } catch (Exception $e) {
             $result = [];
         } finally {
@@ -60,7 +53,31 @@ class GameAccessor {
         }
         return $result;
     }
+
     public function getAllGames() {
         return $this->getGamesByQuery($this->getGameByStatusIDString);
     }
+
+    public function updateGame($game) {
+        $success = false;
+        $gameID = $game->getGameID();
+        $gameStatusID = $game->getGameStatusID();
+        $balls = $game->getBalls();
+        $score = $game->getTotalScore();
+        try {
+            $this->updateStatementByGameID->bindParam(":gameID", $gameID);
+            $this->updateStatementByGameID->bindParam(":gameStatusID", $gameStatusID);
+            $this->updateStatementByGameID->bindParam(":balls", $balls);
+            $this->updateStatementByGameID->bindParam(":score", $score);
+            $success = $this->updateStatementByGameID->execute();
+        } catch (PDOException $e) {
+            $success = false;
+        } finally {
+            if (!is_null($this->updateStatementByGameID)) {
+                $this->updateStatementByGameID->closeCursor();
+            }
+            return $success;
+        }
+    }
+
 }

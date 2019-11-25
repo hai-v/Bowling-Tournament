@@ -18,7 +18,6 @@ function getAllGames() {
     };
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
-    x = new Team("x", "u", 2);
 }
 
 function buildTable(text) {
@@ -207,7 +206,7 @@ function validateScore(scoreArray, id, scores) {
                     errorMessage = "Total Score must be less than or equal to 9. If the Frame is a spare write a '/' for the second ball."
                     break;
                 }
-            }
+            } 
         }
         errorIndex++;
     }//end loop

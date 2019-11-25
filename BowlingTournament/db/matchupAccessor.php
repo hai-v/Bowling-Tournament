@@ -8,7 +8,9 @@ require_once ($projectRoot . '/db/teamItemAccessor.php');
 
 class matchupAccessor {
 
-    private $getTeamIDByMatchIDString = "select m.teamID, t.teamName, t.earnings, g.gameID, g.matchID, g.gameNumber, g.gameStatusID, g.balls, g.score from matchup m, team t, game g where m.matchID in (select g.gameID from game where g.matchID = :matchID) and t.teamID = m.teamID;";
+//    private $getTeamIDByMatchIDString = "select m.teamID, t.teamName, t.earnings, g.gameID, g.matchID, g.gameNumber, g.gameStatusID, g.balls, g.score from matchup m, team t, game g where m.matchID in (select g.gameID from game where g.matchID = :matchID and g.gameStatusID in('available','inprogress"
+//            . "')) and t.teamID = m.teamID;";
+    private $getTeamIDByMatchIDString = "select m.teamID, t.teamName, t.earnings, g.gameID, g.matchID, g.gameNumber, g.gameStatusID, g.balls, g.score from team t, game g, matchup m where g.matchID = m.matchID and t.teamID = m.teamID and m.matchID = :matchID and g.gameStatusID in('INPROGRESS', 'AVAILABLE')";
     private $getMatchupRoundsString = "select * from matchup";
     private $getMatchupRounds = null;
     private $getTeamsbyMatchIDStatement = NULL;
