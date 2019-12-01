@@ -1,9 +1,11 @@
 <?php
-$projectRoot = filter_input(INPUT_SERVER, "DOCUMENT_ROOT") . '/project/BowlingTournament';
+$projectRoot = $_SERVER['DOCUMENT_ROOT'] . '/project/BowlingTournament';
 require_once 'ConnectionManager.php';
 require_once ($projectRoot . '/entity/Player.php');
+require_once ($projectRoot . '/entity/Team.php');
+require_once ($projectRoot . '/utils/ChromePhp.php');
 
-class MenuItemAccessor {
+class PlayerAccessor {
 
     private $getByIDStatementString = "select * from player where playerID = :playerID";
     private $deleteStatementString = "delete from player where playerID = :playerID";
@@ -15,8 +17,6 @@ class MenuItemAccessor {
     private $insertStatement = NULL;
     private $updateStatement = NULL;
 
-    // Constructor will throw exception if there is a problem with ConnectionManager,
-    // or with the prepared statements.
     public function __construct() {
         $cm = new ConnectionManager();
 
@@ -45,36 +45,21 @@ class MenuItemAccessor {
         }
     }
 
-    /**
-     * Gets menu items by executing a SQL "select" statement. An empty array
-     * is returned if there are no results, or if the query contains an error.
-     * 
-     * @param String $selectString a valid SQL "select" statement
-     * @return array MenuItem objects
-     */
-    public function getItemsByQuery($selectString) {
+    private function getItemsByQuery($selectString) {
         $result = [];
-
+        
         try {
             $stmt = $this->conn->prepare($selectString);
             $stmt->execute();
             $dbresults = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($dbresults as $r) {
-                $playerID = $r['playerID'];
-                $teamID = $r['teamID'];
-                $firstName = $r['firstName'];
-                $lastName = $r['lastName'];
-                $hometown = $r['hometown'];
-                $province = $r['province'];
-                $obj = new Player($playerID, $teamID, $firstName, $lastName, $hometown, $province);
+                $obj = new Player($r['playerID'], new Team($r['teamID'], $r['teamName'], $r['earnings']), $r['firstName'], $r['lastName'], $r['hometown'], $r['province']);
                 array_push($result, $obj);
             }
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $result = [];
-        }
-        finally {
+        } finally {
             if (!is_null($stmt)) {
                 $stmt->closeCursor();
             }
@@ -83,21 +68,10 @@ class MenuItemAccessor {
         return $result;
     }
 
-    /**
-     * Gets all menu items.
-     * 
-     * @return array MenuItem objects, possibly empty
-     */
     public function getAllItems() {
-        return $this->getItemsByQuery("select * from player");
+        return $this->getItemsByQuery("SELECT p.playerID, p.firstName, p.lastName, p.hometown, p.province, t.teamID, t.teamName, t.earnings FROM player p, team t WHERE p.teamID = t.teamID");
     }
 
-    /**
-     * Gets the menu item with the specified ID.
-     * 
-     * @param Integer $id the ID of the item to retrieve 
-     * @return the MenuItem object with the specified ID, or NULL if not found
-     */
     public function getItemByID($id) {
         $result = NULL;
 
@@ -128,42 +102,49 @@ class MenuItemAccessor {
         return $result;
     }
 
-    /**
-     * Deletes a menu item.
-     * @param MenuItem $item an object EQUAL TO the item to delete
-     * @return boolean indicates whether the item was deleted
-     */
     public function deleteItem($player) {
         $success;
 
         $playerID = $player->getPlayerID(); // only the ID is needed
-
-        try {
-            $this->deleteStatement->bindParam(":playerID", $playerID);
-            $success = $this->deleteStatement->execute();
-        }
-        catch (PDOException $e) {
-            $success = false;
-        }
-        finally {
-            if (!is_null($this->deleteStatement)) {
-                $this->deleteStatement->closeCursor();
+        
+        $deletable =  $this->isDeletable($playerID);
+        if ($deletable) {
+            try {
+                $this->deleteStatement->bindParam(":playerID", $playerID);
+                $success = $this->deleteStatement->execute();
             }
+            catch (PDOException $e) {
+                $success = false;
+            }
+            finally {
+                if (!is_null($this->deleteStatement)) {
+                    $this->deleteStatement->closeCursor();
+                }
             return $success;
+            }
+        }
+        else {
+            return false;
         }
     }
+    
+    private function isDeletable($playerID) {
+        $success;
+        
+        $query = "select * from game where matchId in (select matchID from matchup where teamID = (select teamID from player where playerID = :playerID))";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":playerID", $playerID);
+        $stmt->execute();
+        $dbresults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return (count($dbresults) === 0);
+    }
 
-    /**
-     * Inserts a menu item into the database.
-     * 
-     * @param MenuItem $item an object of type MenuItem
-     * @return boolean indicates if the item was inserted
-     */
     public function insertItem($player) {
         $success;
 
         $playerID = $player->getPlayerID();
-        $teamID = $player->getTeamID();
+        $teamID = $player->getTeam();
         $firstName = $player->getFirstName();
         $lastName = $player->getLastName();
         $hometown = $player->getHometown();
@@ -176,7 +157,7 @@ class MenuItemAccessor {
             $this->insertStatement->bindParam(":lastName", $lastName);
             $this->insertStatement->bindParam(":hometown", $hometown);
             $this->insertStatement->bindParam(":province", $province);
-            $success = $this->updateStatement->execute();
+            $success = $this->$insertStatement->execute();
         }
         catch (PDOException $e) {
             $success = false;
@@ -189,41 +170,51 @@ class MenuItemAccessor {
         }
     }
 
-    /**
-     * Updates a menu item in the database.
-     * 
-     * @param MenuItem $item an object of type MenuItem, the new values to replace the database's current values
-     * @return boolean indicates if the item was updated
-     */
     public function updateItem($player) {
         $success;
 
         $playerID = $player->getPlayerID();
-        $teamID = $player->getTeamID();
+        $teamID = $player->getTeam();
         $firstName = $player->getFirstName();
         $lastName = $player->getLastName();
         $hometown = $player->getHometown();
         $province = $player->getProvince();
 
-        try {
-            $this->updateStatement->bindParam(":playerID", $playerID);
-            $this->updateStatement->bindParam(":teamID", $teamID);
-            $this->updateStatement->bindParam(":firstName", $firstName);
-            $this->updateStatement->bindParam(":lastName", $lastName);
-            $this->updateStatement->bindParam(":hometown", $hometown);
-            $this->updateStatement->bindParam(":province", $province);
-            $success = $this->updateStatement->execute();
-        }
-        catch (PDOException $e) {
-            $success = false;
-        }
-        finally {
-            if (!is_null($this->updateStatement)) {
-                $this->updateStatement->closeCursor();
+        if ($this->isUpdatable($teamID)) {
+            try {
+                $this->updateStatement->bindParam(":playerID", $playerID);
+                $this->updateStatement->bindParam(":teamID", $teamID);
+                $this->updateStatement->bindParam(":firstName", $firstName);
+                $this->updateStatement->bindParam(":lastName", $lastName);
+                $this->updateStatement->bindParam(":hometown", $hometown);
+                $this->updateStatement->bindParam(":province", $province);
+                $success = $this->updateStatement->execute();
             }
-            return $success;
+            catch (PDOException $e) {
+                $success = false;
+            }
+            finally {
+                if (!is_null($this->updateStatement)) {
+                    $this->updateStatement->closeCursor();
+                }
+                return $success;
+            }
+        }
+        else {
+            return false;
         }
     }
-
+    
+    private function isUpdatable($teamID) {
+        $success;
+        
+        $query = "select * from player where teamID = :teamID";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":teamID", $teamID);
+        $stmt->execute();
+        $dbresults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return (count($dbresults) < 4);        
+    }
 }
 // end class PlayerAccessor

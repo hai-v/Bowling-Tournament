@@ -37,3 +37,7 @@
 .hidden {
     display: none;
 }
+
+.highlighted {
+    background-color: yellow;
+}

@@ -1,16 +1,17 @@
 <?php
+    require_once ($projectRoot . '/entity/Team.php');
     class Player implements JsonSerializable {
         private $playerID;
-        private $teamID;
+        private $team; // can be a Team obj or teamID
         private $firstName;
         private $lastName;
         private $hometown;
         private $province;
 
         
-        public function __construct($playerID, $teamID, $firstName, $lastName, $hometown, $province) {
+        public function __construct($playerID, $team, $firstName, $lastName, $hometown, $province) {
             $this->playerID = $playerID;
-            $this->teamID = $teamID;
+            $this->team = $team;
             $this->firstName = $firstName;
             $this->lastName = $lastName;
             $this->hometown = $hometown;
@@ -21,8 +22,8 @@
             return $this->playerID;
         }
         
-        public function getTeamID() {
-            return $this->teamID;
+        public function getTeam() {
+            return $this->team;
         }
         
         public function getFirstName() {

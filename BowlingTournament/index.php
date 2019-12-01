@@ -20,6 +20,8 @@
             <h3>Teams</h3>
             <div>
                 <button id="btnAddTeam">Add Team</button>
+                <button>Update Team's Name</button>
+                <button>Rename Team</button>
                 <div id="panelTeam" class="hidden">
                     <div>Team ID</div><input type="number" id="inTeamID">
                     <div>Team Name</div><input type="text" id="inTeamName">
@@ -37,7 +39,33 @@
 
         <div id="Players" class="tabcontent">
             <h3>Players</h3>
-            <div></div>
+            <div>
+                <button id="btnAddPlayer">Add Player</button>
+                <button id="btnUpdatePlayer">Update Player</button>     
+                <button>Switch Team</button>
+                <button id="btnDeletePlayer">Delete Player</button>
+                <div id="panelPlayer" class="hidden">
+                    <div>Player ID</div><input type="number" id="inPlayerID">
+                    <div>Team Name</div>
+                    <select id="inPlayerTeam">
+                    </select>
+                    <div>First Name</div><input type="text" id="inPlayerFirstName">
+                    <div>Last Name</div><input type="text" id="inPlayerLastName">
+                    <div>Hometown</div><input type="text" id="inPlayerHometown">
+                    <div>Province</div><input type="text" id="inPlayerProvince" maxlength="2">
+                    <button id="btnDonePlayer">Done</button>
+                </div>
+            </div>
+            <table id="tablePlayer">
+                <tr>
+                    <th> Player ID </th>
+                    <th> Team Name </th>
+                    <th> First Name </th>
+                    <th> Last Name </th>
+                    <th> Hometown </th>
+                    <th> Province </th>
+                </tr>
+            </table>
         </div>
 
         <div id="Matches" class="tabcontent">

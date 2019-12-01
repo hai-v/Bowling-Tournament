@@ -1,5 +1,4 @@
 <?php
-
 $projectRoot = $_SERVER['DOCUMENT_ROOT'] . '/project/BowlingTournament';
 require_once 'ConnectionManager.php';
 require_once ($projectRoot . '/entity/Team.php');
@@ -8,7 +7,7 @@ class TeamAccessor {
 
     private $deleteStatementString = "delete from team where teamID = :teamID";
     private $insertStatementString = "insert INTO team values (:teamID, :teamName, :earnings)";
-    private $updateStatementString = "update team set earnings = :earnings, earnings = :earnings where teamID = :teamID";
+    private $updateStatementString = "update team set teamName = :teamName where teamID = :teamID";
     private $conn = NULL;
     private $deleteStatement = NULL;
     private $insertStatement = NULL;
@@ -102,18 +101,23 @@ class TeamAccessor {
         $success = false;
 
         $itemID = $item->getItemID();
-
-        try {
-            $this->deleteStatement->bindParam(":teamID", $teamID);
-            $success = $this->deleteStatement->execute();
-            $rc = $this->deleteStatement->rowCount();
-        } catch (PDOException $e) {
-            $success = false;
-        } finally {
-            if (!is_null($this->deleteStatement)) {
-                $this->deleteStatement->closeCursor();
-            }
-            return $success;
+        
+        if ($this->countGames($item) === 0 && $this->countPlayers($item) === 0) {
+            try {
+                $this->deleteStatement->bindParam(":teamID", $teamID);
+                $success = $this->deleteStatement->execute();
+                $rc = $this->deleteStatement->rowCount();
+            } catch (PDOException $e) {
+                $success = false;
+            } finally {
+                if (!is_null($this->deleteStatement)) {
+                    $this->deleteStatement->closeCursor();
+                }
+                return $success;
+            }            
+        }
+        else {
+            return false;
         }
     }
 
@@ -141,24 +145,44 @@ class TeamAccessor {
     public function updateItem($item) {
         $success = false;
 
-        $itemID = $item->getItemID();
-        $GameName = $item->getGameName();
-        $GameDevs = $item->getGameDev();
-        $Genre = $item->getGenre();
-        $ReleaceYear = $item->getReleaceYear();
-        try {
-            $this->updateStatement->bindParam(":itemID", $itemID);
-            $this->updateStatement->bindParam(":teamName", $teamName);
-            $this->updateStatement->bindParam(":earnings", $earnings);
-            $success = $this->updateStatement->execute();
-        } catch (PDOException $e) {
-            $success = false;
-        } finally {
-            if (!is_null($this->updateStatement)) {
-                $this->updateStatement->closeCursor();
+        $itemID = $item->getTeamID();
+        $itemName = $item->getTeamName();
+        
+        if ($this->countGames($item) === 0) {
+            try {
+                $this->updateStatement->bindParam(":teamID", $itemID);
+                $this->updateStatement->bindParam(":teamName", $teamName);
+                $success = $this->updateStatement->execute();
+            } catch (PDOException $e) {
+                $success = false;
+            } finally {
+                if (!is_null($this->updateStatement)) {
+                    $this->updateStatement->closeCursor();
+                }
+                return $success;
             }
-            return $success;
+        }
+        else {
+            return false;
         }
     }
-
+    
+    private function countPlayers($item) {
+        $query = "select * from player where teamID = :teamID";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":teanID", $teamID);
+        $stmt->execute();
+        $numPlayers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return  count($numPlayers);
+    }
+    
+    private function countGames($item) {
+        $query = "select * from game where matchID in (select matchID from matchup where teamID = :teamID)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":teamID", $teamID);
+        $stmt->execute();
+        $numMatches = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return count($numMatches);
+    }
 }
+?>

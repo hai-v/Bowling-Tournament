@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/D:/PHP/BowlingTournament/index.php</file>
+            <file>file:/D:/PHP/BowlingTournament/entity/Player.php</file>
+            <file>file:/D:/PHP/BowlingTournament/main.js</file>
+            <file>file:/D:/PHP/BowlingTournament/db/TeamAccessor.php</file>
+            <file>file:/D:/PHP/BowlingTournament/db/PlayerAccessor.php</file>
+            <file>file:/D:/PHP/BowlingTournament/api/insertTeam.php</file>
+            <file>file:/D:/PHP/BowlingTournament/api/updateTeam.php</file>
+            <file>file:/D:/PHP/BowlingTournament/api/updatePlayer.php</file>
+        </group>
+    </open-files>
+</project-private>
